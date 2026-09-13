@@ -2,8 +2,6 @@
 
 A vehicle catalog (`base_vehicles`) and per-instance owned vehicles (`vehicles`), plus EAV-based tuning and handling, and spawn-on-demand. Repository: [Obelisk-Framework/oblsk_vehicles](https://github.com/Obelisk-Framework/oblsk_vehicles).
 
-See [Vehicle module design](https://github.com/Obelisk-Framework/core/blob/main/docs/superpowers/specs/2026-08-10-vehicle-module-design.md) for the full rationale behind every decision on this page.
-
 ## Schema
 
 `fuel_types` is a simple lookup table (petrol, diesel, electric, etc.), name only:

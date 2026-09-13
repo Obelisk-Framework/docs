@@ -11,7 +11,7 @@ export default defineConfig({
   ],
 
   themeConfig: {
-    logo: { light: '/docs/logo-light.svg', dark: '/docs/logo-dark.svg' },
+    logo: { light: '/logo-light.svg', dark: '/logo-dark.svg' },
 
     nav: [
       { text: 'Guide', link: '/guide/introduction' },

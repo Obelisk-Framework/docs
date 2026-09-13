@@ -11,7 +11,7 @@ hero:
       link: /guide/introduction
     - theme: alt
       text: View on GitHub
-      link: https://github.com/Obelisk-Framework/core
+      link: https://github.com/Obelisk-Framework/framework
 
 features:
   - title: Dual-dialect ORM
@@ -21,5 +21,5 @@ features:
   - title: CLI generators
     details: 'obelisk make:module, make:plugin, make:model, make:migration, make:action, make:policy, and more — scaffolding that matches the framework''s own conventions.'
   - title: Docker-ready
-    details: A docker-compose setup for FXServer plus MariaDB or PostgreSQL, with update scripts that pull the latest FXServer build for you.
+    details: A separate infrastructure repository provides Docker Compose for FXServer plus MariaDB or PostgreSQL, with scripts for managing the FXServer build.
 ---

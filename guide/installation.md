@@ -1,18 +1,31 @@
 # Installation
 
-There are two separate paths depending on what you want to do: hack on the framework itself (using the CLI to scaffold modules/plugins), or run an actual FiveM server that loads `core` as a resource.
+Obelisk separates framework source from the server runtime stack:
 
-## Path A — Framework development (npm + CLI)
+- [`framework`](https://github.com/Obelisk-Framework/framework) contains the core FiveM resource, Vue NUI, tests, and CLI.
+- [`infrastructure`](https://github.com/Obelisk-Framework/infrastructure) contains Docker Compose, FXServer setup, and the server configuration template.
+- [`oblsk_connector`](https://github.com/Obelisk-Framework/oblsk_connector) bridges the Lua ORM to MySQL/MariaDB or PostgreSQL.
 
-From the `core` directory:
+Choose framework development if you only need the CLI and tests. Use the infrastructure path to run an actual FiveM server.
+
+## Framework development
+
+### Requirements
+
+- Git
+- Node.js and npm
+- Lua 5.4 for the test suite
+
+Clone the framework and install its dependencies:
 
 ```bash
-cd core
+git clone https://github.com/Obelisk-Framework/framework.git
+cd framework
 npm install
 node cli/index.js --help
 ```
 
-If you'd rather invoke the CLI as `obelisk` instead of `node cli/index.js`, link it globally:
+To invoke the CLI as `obelisk`, link it globally:
 
 ```bash
 chmod +x cli/index.js
@@ -20,37 +33,94 @@ npm link
 obelisk --help
 ```
 
-`package.json` also exposes the generators as npm scripts (`npm run make:module`, `npm run make:plugin`, `npm run make:model`, `npm run make:migration`, `npm run make:seeder`, `npm run make:action`, `npm run make:interaction`, `npm run make:policy`), which call the same CLI commands.
+The package also exposes generators as npm scripts, including `make:module`, `make:plugin`, `make:model`, `make:migration`, `make:seeder`, `make:action`, `make:interaction`, and `make:policy`.
 
-Generated files are written relative to the current working directory, so run `obelisk make:module` / `obelisk make:plugin` (and the other generators) from inside `core/` — not from the repository root.
-
-## Path B — Running an actual FiveM server (Docker)
-
-The repository root (one level above `core/`) has a `docker-compose.yml`, a `docker/fivem/` build context, and a `server-data/` directory with the server config. The FXServer build itself isn't baked into the Docker image — it's pulled onto the host first:
+Generated files are written relative to the current working directory. Run generators from the framework repository root.
 
 ```bash
-# from the repo root (one level above core/)
-scripts/update-fivem-server.sh        # or scripts\update-fivem-server.bat on Windows
+npm run cli -- make:module MyFeature
+npm run cli -- registry:generate
+npm test
+```
+
+## Run a FiveM server with Docker
+
+### Requirements
+
+- Git
+- Docker with Docker Compose
+- Node.js 20+ and npm for `oblsk_connector`
+- A FiveM server license key from [Cfx.re Keymaster](https://keymaster.fivem.net/)
+
+### 1. Clone the infrastructure and resources
+
+```bash
+git clone https://github.com/Obelisk-Framework/infrastructure.git obelisk
+cd obelisk
+
+git clone https://github.com/Obelisk-Framework/framework.git core
+git clone https://github.com/Obelisk-Framework/oblsk_connector.git oblsk_connector
+npm ci --prefix oblsk_connector
+```
+
+Keep the resource directory names exactly as shown. Docker Compose mounts `./core` and `./oblsk_connector` into FXServer under those resource names.
+
+### 2. Configure the server
+
+```bash
+cp server.cfg.example server.cfg
+```
+
+Open `server.cfg` and replace the placeholder `sv_licenseKey "changeme"` with your real server license key. The local `server.cfg` is ignored by Git.
+
+The container downloads the recommended Linux FXServer artifact automatically if `fxserver/` is empty. To download or update it explicitly on Linux or in WSL, run:
+
+```bash
+./scripts/update-fivem-server.sh
+```
+
+The script requires `curl`, `jq`, and `tar` with XZ support.
+
+### 3. Start with MariaDB
+
+```bash
 docker compose --profile mariadb up --build mariadb fxserver
 ```
 
-`mariadb` and `postgres` are both gated behind a Compose profile (`--profile mariadb` / `--profile postgres`) so only one database container ever starts. There's no implicit default profile, even for MariaDB, so the flag is required in every invocation, including this one.
+Both database services use Compose profiles, so the profile flag is required. This command starts MariaDB and FXServer; the FXServer entrypoint also starts the connector's Node.js sidecar.
 
-`docker compose --profile mariadb up --build mariadb fxserver` starts three things: the `mariadb` service (the default DB backend), the `fxserver` service (built from `docker/fivem/Dockerfile`, which mounts `./core` and `./oblsk_connector` straight from the repo as resources), and `oblsk_connector`'s Node.js sidecar, which the container's entrypoint script starts alongside FXServer before running `./run.sh +exec server.cfg`.
+Open txAdmin at `http://localhost:40120`. FiveM traffic is exposed on TCP and UDP port `30120`.
 
-Before the server will actually run, edit `server-data/server.cfg` and set a real `sv_licenseKey` — get one from [keymaster.fivem.net](https://keymaster.fivem.net). The placeholder value `"changeme"` will not work.
+## Switch to PostgreSQL
 
-### Switching to PostgreSQL
+In `server.cfg`, set both the PostgreSQL connection string and driver:
 
-MariaDB is the default DB backend. To use PostgreSQL instead:
+```cfg
+set mysql_connection_string "postgres://obelisk:obelisk_password@postgres:5432/fivem"
+set db_driver "postgres"
+```
 
-1. In `server-data/server.cfg`, set `db_driver "postgres"` and point `mysql_connection_string` at the `postgres` service instead of `mariadb`.
-2. Start the `postgres` compose service alongside the rest:
+Then start the PostgreSQL profile:
 
-   ```bash
-   docker compose --profile postgres up postgres fxserver
-   ```
+```bash
+docker compose --profile postgres up --build postgres fxserver
+```
 
-   `mariadb` is gated behind its own `mariadb` profile, so it does not start alongside `postgres` here. `db_driver postgres` in `server.cfg` is still what actually selects the database the connector talks to; the profile flag only controls which containers run.
+Do not start MariaDB alongside it. The profile controls which database container runs, while `db_driver` selects the ORM's SQL dialect. See [ORM: Dialects](/concepts/orm#dialects) for details.
 
-`db_driver` is the only thing that selects the ORM's SQL dialect — see [ORM: Dialects](/concepts/orm#dialects) for details.
+## Update an installation
+
+From the infrastructure repository root:
+
+```bash
+git pull --ff-only
+git -C core pull --ff-only
+git -C oblsk_connector pull --ff-only
+npm ci --prefix oblsk_connector
+./scripts/update-fivem-server.sh
+docker compose --profile mariadb up --build -d mariadb fxserver
+```
+
+Replace `mariadb` with `postgres` when using PostgreSQL. Stop FXServer before replacing an existing FXServer artifact.
+
+For additional commands and troubleshooting, see the [infrastructure README](https://github.com/Obelisk-Framework/infrastructure#readme).

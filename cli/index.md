@@ -418,7 +418,7 @@ No prompts. Scans `modules/*/` and `plugins/*/` on disk and rewrites `modules/re
 
 `modules/registry.json` and `plugins/registry.json` aren't committed to the repo. Lua has no way to list a directory's contents at runtime, so `core/server/bootstrap.lua` needs these files to know which modules and plugins to run migrations for; scanning disk on demand is what keeps them accurate without anyone having to hand-maintain a list.
 
-Run this on the host, not inside the Docker container: `docker-compose.yml` mounts `./core` read-only, so a write from inside the container fails. Run it any time a module or plugin directory is added or removed, and before starting or restarting the server.
+Run this on the host from the framework repository, not inside the Docker container: the infrastructure stack mounts `./core` read-only, so a write from inside the container fails. Run it any time a module or plugin directory is added or removed, and before starting or restarting the server.
 
 **Example:**
 

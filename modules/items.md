@@ -2,8 +2,6 @@
 
 An item catalog (`base_items`) and per-instance inventory items (`items`), plus a use pipeline built entirely on `ActionService`. Repository: [Obelisk-Framework/oblsk_items](https://github.com/Obelisk-Framework/oblsk_items).
 
-See [Item module design](https://github.com/Obelisk-Framework/core/blob/main/docs/superpowers/specs/2026-08-10-item-module-design.md) for the full rationale behind every decision on this page.
-
 ## Schema
 
 `base_items` is the catalog, one row per item type:

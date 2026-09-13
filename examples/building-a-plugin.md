@@ -393,7 +393,7 @@ Now `ActionService.execute` will call `PolicyService.check` before running `assi
 
 ## 6. Load it
 
-Add `core` and `oblsk_connector` to `server-data/server.cfg` (see [Installation](/guide/installation) for the full server layout):
+The infrastructure repository's `server.cfg.example` already loads `core` and `oblsk_connector` (see [Installation](/guide/installation) for the full server layout):
 
 ```
 ensure oblsk_connector
@@ -405,7 +405,7 @@ ensure core
 Restart the server:
 
 ```bash
-docker compose restart fxserver
+docker compose --profile mariadb restart fxserver
 ```
 
 Watch the server console. You should see the same `Loading...` / `Loaded successfully!` print pattern that every CLI-generated `server/main.lua` produces — this is the same shape used by the real `oblsk_character-selection` plugin's `server/main.lua`:

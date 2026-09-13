@@ -1,13 +1,12 @@
 # Quick Start
 
-This walks through the shortest real path from a fresh clone to a generated, loadable module, using only commands that actually exist in this repository.
+This walks through the shortest path from a framework clone to a generated, loadable module. If you are running the Docker stack, the framework repository is the `core/` directory inside your infrastructure checkout.
 
 ## 1. Install dependencies
 
-From the `core` directory:
+From the framework repository root:
 
 ```bash
-cd core
 npm install
 ```
 
@@ -67,12 +66,21 @@ modules/MyFeature/
 
 ## 4. Load the module
 
-`MyFeature` loads as part of `core`'s own resource (its scripts are picked up by `core/fxmanifest.lua`'s `modules/*/...` globs). There's nothing to `ensure` separately, but `core/server/bootstrap.lua` only runs a module's migrations if its name appears in `modules/registry.json`, and that file isn't hand-maintained: run `obelisk registry:generate` from `core/` on the host to regenerate it from what's actually on disk (the Docker container mounts `core/` read-only, so this step can't run inside it). Then restart `core` (or the whole server), and the module's scripts and migrations load alongside the rest of the framework.
+`MyFeature` loads as part of the `core` resource (its scripts are picked up by `fxmanifest.lua`'s `modules/*/...` globs). There is nothing to `ensure` separately, but `core/server/bootstrap.lua` only runs a module's migrations if its name appears in `modules/registry.json`. Run the registry generator from the framework repository on the host; the Docker container mounts `core/` read-only.
+
+Run inside the framework repository (`infrastructure/core` in Docker setups):
 
 ```bash
-obelisk registry:generate
-docker compose restart fxserver
+npm run cli -- registry:generate
 ```
+
+Then, from the infrastructure repository root, restart FXServer with the active database profile:
+
+```bash
+docker compose --profile mariadb restart fxserver
+```
+
+Use `--profile postgres` instead when running PostgreSQL.
 
 ## Next steps
 

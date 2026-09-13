@@ -12,11 +12,12 @@ On top of that, the framework ships a CLI for scaffolding new code — models, m
 
 Obelisk is split across several resources and directories, each with a distinct role:
 
-- **`core`** (this repository) — the main framework resource: the ORM, core services (hooks, actions, interactions, policies, notifications, progress, keybinds), and the CLI.
+- **`framework`** — the main repository, mounted as the `core` FiveM resource. It contains the ORM, core services (hooks, actions, interactions, policies, notifications, progress, keybinds), Vue NUI, and CLI.
+- **`infrastructure`** — the Docker Compose stack, FXServer setup scripts, and server configuration template used to run the framework.
 - **`oblsk_connector`** — a companion FiveM resource paired with a Node.js HTTP sidecar. It's the piece that actually issues queries against MySQL/MariaDB or PostgreSQL, since FXServer's Lua runtime can't load a native DB driver directly.
 - **`modules/`** — first-party framework modules maintained alongside core; `oblsk_items` and `oblsk_vehicles` are names reserved for planned modules here (see [Existing Plugins](/reference/existing-plugins) for what's actually implemented today).
 - **`plugins/`** — third-party or project-specific plugins that build on the framework, such as `oblsk_inventory` and `oblsk_character-selection`.
-- **`core/web`** — the Vue 3 + Vite NUI application. It's built and its output is served in-game as the player-facing UI.
+- **`web/`** — the Vue 3 + Vite NUI application in the framework repository. It's built and its output is served in-game as the player-facing UI.
 
 ## Next steps
 
