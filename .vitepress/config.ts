@@ -3,15 +3,15 @@ import { defineConfig } from 'vitepress'
 export default defineConfig({
   title: 'Obelisk Framework',
   description: 'A modern FiveM framework with Lua, Vue 3, and MariaDB/PostgreSQL',
-  base: '/core/',
+  base: '/docs/',
   ignoreDeadLinks: false,
 
   head: [
-    ['link', { rel: 'icon', type: 'image/svg+xml', href: '/core/favicon.svg' }]
+    ['link', { rel: 'icon', type: 'image/svg+xml', href: '/docs/favicon.svg' }]
   ],
 
   themeConfig: {
-    logo: { light: '/logo-light.svg', dark: '/logo-dark.svg' },
+    logo: { light: '/docs/logo-light.svg', dark: '/docs/logo-dark.svg' },
 
     nav: [
       { text: 'Guide', link: '/guide/introduction' },
@@ -82,7 +82,7 @@ export default defineConfig({
     },
 
     socialLinks: [
-      { icon: 'github', link: 'https://github.com/Obelisk-Framework/core' }
+      { icon: 'github', link: 'https://github.com/Obelisk-Framework/framework' }
     ]
   }
 })
