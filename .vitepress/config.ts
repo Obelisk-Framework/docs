@@ -7,11 +7,11 @@ export default defineConfig({
   ignoreDeadLinks: false,
 
   head: [
-    ['link', { rel: 'icon', type: 'image/svg+xml', href: '/docs/favicon.svg' }]
+    ['link', { rel: 'icon', type: 'image/png', href: '/docs/logo.png' }]
   ],
 
   themeConfig: {
-    logo: { light: '/logo-light.svg', dark: '/logo-dark.svg' },
+    logo: '/logo.png',
 
     nav: [
       { text: 'Guide', link: '/guide/introduction' },
